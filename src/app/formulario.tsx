@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { supabase } from '@/lib/supabase';
 
 export default function Formulario() {
   const router = useRouter();
@@ -10,13 +12,32 @@ export default function Formulario() {
   const [telefono, setTelefono] = useState('');
   const [ciudad, setCiudad] = useState('');
   const [error, setError] = useState('');
+  const [enviando, setEnviando] = useState(false);
 
-  const enviar = () => {
+  const enviar = async () => {
     if (![nombre, correo, telefono, ciudad].every((valor) => valor.trim())) {
       setError('Todos los campos son obligatorios.');
       return;
     }
     setError('');
+    setEnviando(true);
+
+    if (supabase) {
+      const { error: errorSupabase } = await supabase.from('clientes').insert({
+        nombre: nombre.trim(),
+        correo: correo.trim(),
+        telefono: telefono.trim(),
+        ciudad: ciudad.trim(),
+      });
+
+      if (errorSupabase) {
+        setEnviando(false);
+        setError('No fue posible registrar los datos. Intenta nuevamente.');
+        return;
+      }
+    }
+
+    setEnviando(false);
     router.push({ pathname: '/resultado', params: { nombre: nombre.trim(), correo: correo.trim(), telefono: telefono.trim(), ciudad: ciudad.trim() } });
   };
 
@@ -35,7 +56,9 @@ export default function Formulario() {
           <Text style={styles.label}>Ciudad</Text>
           <TextInput style={styles.input} placeholder="Ej. Pasto" value={ciudad} onChangeText={setCiudad} />
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <Pressable style={styles.boton} onPress={enviar}><Text style={styles.botonTexto}>Enviar informacion</Text></Pressable>
+          <Pressable style={styles.boton} onPress={enviar} disabled={enviando}>
+            {enviando ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.botonTexto}>Enviar informacion</Text>}
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>

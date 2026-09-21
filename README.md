@@ -1,5 +1,14 @@
 # Welcome to your Expo app 👋
 
+## Configurar Supabase
+
+1. Copia `.env.example` como `.env.local`.
+2. En Supabase abre **Connect** y copia la `Publishable key` en `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+3. Aplica la migracion ubicada en `supabase/migrations` desde el SQL Editor de Supabase o con `npx supabase db push` despues de vincular el proyecto.
+4. Reinicia Expo con `npx expo start -c`.
+
+La aplicacion usa la Data API de Supabase desde el celular. La contrasena de PostgreSQL y las claves secretas nunca deben agregarse a variables `EXPO_PUBLIC_*` ni confirmarse en Git.
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started

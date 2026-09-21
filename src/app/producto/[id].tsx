@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { vehiculos } from '@/constants/vehiculos';
+import { supabase } from '@/lib/supabase';
 
 type PasoCompra = 'formulario' | 'confirmado';
 
@@ -62,7 +63,7 @@ export default function ProductoScreen() {
     setError('');
   };
 
-  const confirmarCompra = () => {
+  const confirmarCompra = async () => {
     if (
       nombre.trim() === '' ||
       telefono.trim() === '' ||
@@ -75,10 +76,27 @@ export default function ProductoScreen() {
     setError('');
     setProcesando(true);
 
-    setTimeout(() => {
-      setProcesando(false);
-      setPasoCompra('confirmado');
-    }, 1200);
+    if (supabase) {
+      const { error: errorSupabase } = await supabase.from('pedidos').insert({
+        vehiculo_id: id,
+        marca,
+        modelo,
+        precio,
+        nombre: nombre.trim(),
+        telefono: telefono.trim(),
+        ciudad: ciudad.trim(),
+        financiado,
+      });
+
+      if (errorSupabase) {
+        setProcesando(false);
+        setError('No fue posible registrar la compra. Intenta nuevamente.');
+        return;
+      }
+    }
+
+    setProcesando(false);
+    setPasoCompra('confirmado');
   };
 
   return (
