@@ -56,6 +56,7 @@ export default function HomeScreen() {
           <OpcionMenu titulo="Formulario" onPress={() => router.push('/formulario')} />
           <OpcionMenu titulo="Galeria" onPress={() => router.push('/imagenes')} />
           <OpcionMenu titulo="Contacto" onPress={() => router.push('/contacto')} />
+          <OpcionMenu titulo="Ingresar" onPress={() => router.push('/login')} />
         </ScrollView>
 
         <Text style={styles.seccionTitulo}>Recomendados</Text>

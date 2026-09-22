@@ -23,11 +23,13 @@ export default function Formulario() {
     setEnviando(true);
 
     if (supabase) {
+      const { data: usuario } = await supabase.auth.getUser();
       const { error: errorSupabase } = await supabase.from('clientes').insert({
         nombre: nombre.trim(),
         correo: correo.trim(),
         telefono: telefono.trim(),
         ciudad: ciudad.trim(),
+        usuario_id: usuario.user?.id ?? null,
       });
 
       if (errorSupabase) {

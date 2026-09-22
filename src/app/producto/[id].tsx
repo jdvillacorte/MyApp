@@ -77,6 +77,7 @@ export default function ProductoScreen() {
     setProcesando(true);
 
     if (supabase) {
+      const { data: usuario } = await supabase.auth.getUser();
       const { error: errorSupabase } = await supabase.from('pedidos').insert({
         vehiculo_id: id,
         marca,
@@ -86,6 +87,7 @@ export default function ProductoScreen() {
         telefono: telefono.trim(),
         ciudad: ciudad.trim(),
         financiado,
+        usuario_id: usuario.user?.id ?? null,
       });
 
       if (errorSupabase) {
