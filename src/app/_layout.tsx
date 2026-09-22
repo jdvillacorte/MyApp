@@ -27,6 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="formulario" options={{ title: 'Registro' }} />
         <Stack.Screen name="login" options={{ title: 'Cuenta' }} />
         <Stack.Screen name="resultado" options={{ title: 'Datos registrados' }} />
+        <Stack.Screen name="registros" options={{ title: 'Clientes AutoSport' }} />
         <Stack.Screen name="imagenes" options={{ title: 'Galeria de autos' }} />
         <Stack.Screen
           name="contacto"

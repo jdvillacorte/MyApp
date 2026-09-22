@@ -11,13 +11,18 @@ export const supabaseConfigured = Boolean(
   supabaseUrl && supabasePublishableKey,
 );
 
+const authStorage =
+  typeof globalThis.localStorage === 'undefined'
+    ? undefined
+    : globalThis.localStorage;
+
 export const supabase =
   supabaseUrl && supabasePublishableKey
     ? createClient(supabaseUrl, supabasePublishableKey, {
         auth: {
-          storage: localStorage,
+          storage: authStorage,
           autoRefreshToken: true,
-          persistSession: true,
+          persistSession: Boolean(authStorage),
           detectSessionInUrl: false,
         },
       })

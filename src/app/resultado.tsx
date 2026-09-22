@@ -14,6 +14,7 @@ export default function Resultado() {
     ['Correo', valor(params.correo)],
     ['Telefono', valor(params.telefono)],
     ['Ciudad', valor(params.ciudad)],
+    ['Tipo de compra', valor(params.tipoCompra)],
   ];
 
   return (

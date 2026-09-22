@@ -5,17 +5,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supabase } from '@/lib/supabase';
 
+const tiposCompra = ['Contado', 'Credito', 'Leasing', 'Permuta', 'Otro'];
+
 export default function Formulario() {
   const router = useRouter();
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [telefono, setTelefono] = useState('');
   const [ciudad, setCiudad] = useState('');
+  const [tipoCompra, setTipoCompra] = useState('');
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
 
   const enviar = async () => {
-    if (![nombre, correo, telefono, ciudad].every((valor) => valor.trim())) {
+    if (![nombre, correo, telefono, ciudad, tipoCompra].every((valor) => valor.trim())) {
       setError('Todos los campos son obligatorios.');
       return;
     }
@@ -29,6 +32,7 @@ export default function Formulario() {
         correo: correo.trim(),
         telefono: telefono.trim(),
         ciudad: ciudad.trim(),
+        tipo_compra: tipoCompra,
         usuario_id: usuario.user?.id ?? null,
       });
 
@@ -40,7 +44,7 @@ export default function Formulario() {
     }
 
     setEnviando(false);
-    router.push({ pathname: '/resultado', params: { nombre: nombre.trim(), correo: correo.trim(), telefono: telefono.trim(), ciudad: ciudad.trim() } });
+    router.push({ pathname: '/resultado', params: { nombre: nombre.trim(), correo: correo.trim(), telefono: telefono.trim(), ciudad: ciudad.trim(), tipoCompra } });
   };
 
   return (
@@ -57,6 +61,20 @@ export default function Formulario() {
           <TextInput style={styles.input} placeholder="3001234567" keyboardType="phone-pad" value={telefono} onChangeText={setTelefono} />
           <Text style={styles.label}>Ciudad</Text>
           <TextInput style={styles.input} placeholder="Ej. Pasto" value={ciudad} onChangeText={setCiudad} />
+          <Text style={styles.label}>Tipo de compra</Text>
+          <View style={styles.opciones}>
+            {tiposCompra.map((tipo) => (
+              <Pressable
+                key={tipo}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: tipoCompra === tipo }}
+                style={[styles.opcion, tipoCompra === tipo && styles.opcionActiva]}
+                onPress={() => setTipoCompra(tipo)}
+              >
+                <Text style={[styles.opcionTexto, tipoCompra === tipo && styles.opcionTextoActivo]}>{tipo}</Text>
+              </Pressable>
+            ))}
+          </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Pressable style={styles.boton} onPress={enviar} disabled={enviando}>
             {enviando ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.botonTexto}>Enviar informacion</Text>}
@@ -75,6 +93,11 @@ const styles = StyleSheet.create({
   card: { backgroundColor: '#ffffff', padding: 20, borderRadius: 8, borderWidth: 1, borderColor: '#e2e8f0' },
   label: { color: '#172033', fontWeight: '700', marginBottom: 6 },
   input: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, padding: 12, marginBottom: 14, color: '#121826' },
+  opciones: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+  opcion: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, backgroundColor: '#f8fafc' },
+  opcionActiva: { backgroundColor: '#dc2626', borderColor: '#dc2626' },
+  opcionTexto: { color: '#334155', fontWeight: '700' },
+  opcionTextoActivo: { color: '#ffffff' },
   error: { color: '#b91c1c', marginBottom: 12 },
   boton: { backgroundColor: '#dc2626', paddingVertical: 15, borderRadius: 8, alignItems: 'center' },
   botonTexto: { color: '#ffffff', fontWeight: '800' },
