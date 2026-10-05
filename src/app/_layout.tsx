@@ -1,47 +1,54 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { ActivityIndicator, StyleSheet, useColorScheme, View } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 
 SplashScreen.preventAutoHideAsync();
 
+function RootNavigator() {
+  const { cargando, session } = useAuth();
+
+  if (cargando) {
+    return (
+      <View style={styles.cargando}>
+        <ActivityIndicator color="#dc2626" size="large" />
+      </View>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Protected guard={!session}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      <Stack.Protected guard={Boolean(session)}>
+        <Stack.Screen name="(app)" />
+      </Stack.Protected>
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
-      <Stack screenOptions={{ headerStyle: { backgroundColor: '#dc2626' }, headerTintColor: '#ffffff', headerTitleStyle: { fontWeight: 'bold' }, contentStyle: { backgroundColor: '#eef2f6' } }}>
-        <Stack.Screen
-          name="index"
-          options={{
-            title: 'AutoSport',
-          }}
-        />
-        <Stack.Screen
-          name="menu"
-          options={{
-            title: 'Catalogo de autos',
-          }}
-        />
-        <Stack.Screen name="formulario" options={{ title: 'Registro' }} />
-        <Stack.Screen name="login" options={{ title: 'Cuenta' }} />
-        <Stack.Screen name="resultado" options={{ title: 'Datos registrados' }} />
-        <Stack.Screen name="registros" options={{ title: 'Clientes AutoSport' }} />
-        <Stack.Screen name="imagenes" options={{ title: 'Galeria de autos' }} />
-        <Stack.Screen
-          name="contacto"
-          options={{
-            title: 'Contacto',
-          }}
-        />
-        <Stack.Screen
-          name="producto/[id]"
-          options={{
-            title: 'Detalle del vehiculo',
-          }}
-        />
-      </Stack>
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
     </ThemeProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  cargando: {
+    alignItems: 'center',
+    backgroundColor: '#eef2f6',
+    flex: 1,
+    justifyContent: 'center',
+  },
+});

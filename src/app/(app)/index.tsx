@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { vehiculos } from '@/constants/vehiculos';
+import { supabase } from '@/lib/supabase';
 
 const recomendados = vehiculos.slice(0, 2);
 
@@ -26,6 +27,15 @@ function OpcionMenu({ titulo, onPress }: { titulo: string; onPress: () => void }
 
 export default function HomeScreen() {
   const router = useRouter();
+
+  const cerrarSesion = async () => {
+    const { error } = (await supabase?.auth.signOut()) ?? { error: null };
+
+    if (error) {
+      console.warn('No fue posible cerrar la sesion:', error.message);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.pantalla}>
       <StatusBar style="dark" />
@@ -56,7 +66,6 @@ export default function HomeScreen() {
           <OpcionMenu titulo="Formulario" onPress={() => router.push('/formulario')} />
           <OpcionMenu titulo="Galeria" onPress={() => router.push('/imagenes')} />
           <OpcionMenu titulo="Contacto" onPress={() => router.push('/contacto')} />
-          <OpcionMenu titulo="Ingresar" onPress={() => router.push('/login')} />
           <OpcionMenu titulo="Clientes AutoSport" onPress={() => router.push('/registros')} />
         </ScrollView>
 
@@ -95,6 +104,16 @@ export default function HomeScreen() {
           onPress={() => router.push('/contacto')}
         >
           <Text style={styles.botonSecundarioTexto}>Contacto</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.botonCerrarSesion,
+            pressed && styles.botonPresionado,
+          ]}
+          onPress={cerrarSesion}
+        >
+          <Text style={styles.botonCerrarSesionTexto}>Cerrar sesion</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -227,6 +246,18 @@ const styles = StyleSheet.create({
   },
   botonSecundarioTexto: {
     color: '#dc2626',
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  botonCerrarSesion: {
+    alignItems: 'center',
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    marginTop: 12,
+    paddingVertical: 16,
+  },
+  botonCerrarSesionTexto: {
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '900',
   },

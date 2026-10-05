@@ -34,7 +34,6 @@
           "imageWidth": 76
         }
       ],
-      "expo-sqlite",
       "expo-image",
       "expo-web-browser"
     ],
