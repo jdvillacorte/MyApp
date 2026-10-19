@@ -122,6 +122,20 @@ Despues de instalar, registre un cliente desde esa APK y compruebe su identifica
 
 La lista queda sin marcar para no presentar como realizadas capturas que aun no se hayan tomado. Los archivos de capturas y APK anteriores se conservan en `artifacts`, pero deben contrastarse con la version final.
 
+### Evidencias verificadas el 19 de octubre de 2026
+
+Se guardaron capturas reales de la version web con viewport de celular de 390 por 844 en `artifacts/entrega/capturas`: inicio, formulario diligenciado, resultado, clientes, galeria, contacto, Login, registro, dos confirmaciones de cuenta creada y Login incorrecto. Son evidencias web en formato movil; no deben presentarse como capturas de una APK instalada.
+
+Las cuentas `Cliente entrega interfaz 1` y `Cliente entrega interfaz 2` se crearon desde Crear cuenta de AutoSport y se comprobaron en `auth.users`. El cliente `Entrega AutoSport interfaz` se guardo desde el formulario, se visualizo en Resultado y se verifico en PostgreSQL con el identificador `25eedcfd-bf51-407e-89bf-de529a6cc8ec`.
+
+TypeScript, los bundles Android, iOS y web, y las 21 comprobaciones de Expo Doctor pasaron. El informe reproducible de integracion esta en `artifacts/entrega/verificacion-supabase.json`. Se verificaron registro, Login correcto e incorrecto, perfil automatico, INSERT con fila devuelta, consultas, pedido, cierre de sesion y aislamiento entre cuentas mediante RLS. La persistencia despues de recargar y el bloqueo al cerrar sesion se comprobaron en la interfaz web; falta repetir la prueba de cierre completo en Android con la APK final.
+
+Se solicito el build final de la APK desde el commit `2da5738`:
+
+https://expo.dev/accounts/cywolf/projects/miapp-6e/builds/cbe678e8-9aae-4e35-bae6-330224f0cfaa
+
+Consulte ese enlace para comprobar la finalizacion. Hasta que este terminado, descargado e instalado, siguen pendientes las evidencias de instalacion, del registro hecho desde esa APK, del mismo registro en Table Editor y de Authentication > Users en el panel de Supabase.
+
 ## Respuestas del laboratorio de componentes
 
 1. **View:** agrupa y organiza componentes visuales, como el encabezado, una tarjeta o una fila.
