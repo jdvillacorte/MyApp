@@ -1,20 +1,16 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { supabase } from '@/lib/supabase';
 
-type Cliente = {
-  id: string;
-  nombre: string;
-  ciudad: string;
-  tipo_compra: string;
-  creado_en: string;
-};
+import type { Cliente } from '@/types/cliente';
+
+type ClienteResumen = Pick<Cliente, 'id' | 'nombre' | 'ciudad' | 'vehiculo_favorito' | 'tipo_compra' | 'creado_en'>;
 
 export default function Registros() {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [clientes, setClientes] = useState<ClienteResumen[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
@@ -27,18 +23,33 @@ export default function Registros() {
 
     setCargando(true);
     setError('');
-    const { data, error: errorSupabase } = await supabase
+    try {
+      const { data, error: errorSupabase } = await supabase
       .from('clientes')
-      .select('id, nombre, ciudad, tipo_compra, creado_en')
+      .select('id, nombre, ciudad, vehiculo_favorito, tipo_compra, creado_en')
       .order('creado_en', { ascending: false });
 
-    if (errorSupabase) {
-      setError('No fue posible consultar los clientes.');
+      if (errorSupabase) {
+        const mensaje = errorSupabase.message;
+        if (/fetch|network|ENOTFOUND/i.test(mensaje)) {
+          setError('No se pudo conectar con Supabase. Revisa tu conexion y que el proyecto este activo.');
+        } else if (errorSupabase.code === '42501') {
+          setError('Tu cuenta no tiene permiso para consultar los clientes. Revisa los permisos de la tabla en Supabase.');
+        } else if (['42P01', 'PGRST205'].includes(errorSupabase.code)) {
+          setError('La tabla clientes no esta disponible en el proyecto de Supabase configurado.');
+        } else {
+          setError(`No fue posible consultar los clientes: ${mensaje}`);
+        }
+        setClientes([]);
+      } else {
+        setClientes(data ?? []);
+      }
+    } catch {
       setClientes([]);
-    } else {
-      setClientes(data ?? []);
+      setError('No se pudo conectar con Supabase. Revisa tu conexion y que el proyecto este activo.');
+    } finally {
+      setCargando(false);
     }
-    setCargando(false);
   }, []);
 
   useFocusEffect(
@@ -48,8 +59,14 @@ export default function Registros() {
   );
 
   return (
-    <SafeAreaView style={styles.pantalla}>
-      <ScrollView contentContainerStyle={styles.contenido}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
+      <FlatList
+        contentContainerStyle={styles.contenido}
+        data={clientes}
+        keyExtractor={(cliente) => cliente.id}
+        refreshing={cargando}
+        onRefresh={cargarClientes}
+        ListHeaderComponent={<>
         <Text style={styles.titulo}>Clientes AutoSport</Text>
         <Text style={styles.subtitulo}>Personas que ya eligieron como comprar su proximo deportivo.</Text>
 
@@ -60,7 +77,8 @@ export default function Registros() {
           <Text style={styles.vacio}>Aun no hay clientes registrados.</Text>
         ) : null}
 
-        {clientes.map((cliente) => (
+        </>}
+        renderItem={({ item: cliente }) => (
           <View key={cliente.id} style={styles.tarjeta}>
             <View style={styles.avatar}>
               <Text style={styles.avatarTexto}>{cliente.nombre.charAt(0).toUpperCase()}</Text>
@@ -68,15 +86,17 @@ export default function Registros() {
             <View style={styles.info}>
               <Text style={styles.nombre}>{cliente.nombre}</Text>
               <Text style={styles.detalle}>{cliente.ciudad}</Text>
+              <Text style={styles.detalle}>{cliente.vehiculo_favorito}</Text>
               <Text style={styles.tipo}>{cliente.tipo_compra}</Text>
             </View>
           </View>
-        ))}
-
+        )}
+        ListFooterComponent={
         <Pressable style={styles.boton} onPress={cargarClientes} disabled={cargando}>
           <Text style={styles.botonTexto}>Actualizar registros</Text>
         </Pressable>
-      </ScrollView>
+        }
+      />
     </SafeAreaView>
   );
 }

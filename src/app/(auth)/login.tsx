@@ -1,8 +1,11 @@
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,12 +16,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginScreen() {
+  const { registro } = useLocalSearchParams<{ registro?: string }>();
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
 
   const iniciarSesion = async () => {
+    if (cargando) return;
     if (!supabase) {
       setMensaje('Falta configurar la clave publica de Supabase.');
       return;
@@ -31,20 +36,27 @@ export default function LoginScreen() {
 
     setCargando(true);
     setMensaje('');
+    try {
     const { error } = await supabase.auth.signInWithPassword({
       email: correo.trim(),
       password: contrasena,
     });
-    setCargando(false);
-
     if (error) {
-      setMensaje('Correo o contrasena incorrectos.');
+      setMensaje(error.code === 'invalid_credentials'
+        ? 'Correo o contrasena incorrectos.'
+        : `No fue posible iniciar sesion: ${error.message}`);
+    }
+    } catch {
+      setMensaje('No fue posible conectar con Supabase. Revisa tu conexion.');
+    } finally {
+      setCargando(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.pantalla}>
-      <View style={styles.contenido}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
         <View style={styles.marca}>
           <Text style={styles.marcaIniciales}>AS</Text>
         </View>
@@ -74,6 +86,13 @@ export default function LoginScreen() {
         />
 
         {mensaje ? <Text style={styles.mensaje}>{mensaje}</Text> : null}
+        {!mensaje && registro ? (
+          <Text style={styles.confirmacion}>
+            {registro === 'confirmar'
+              ? 'Cuenta creada. Confirma tu correo antes de iniciar sesion.'
+              : 'Cuenta creada. Ya puedes iniciar sesion.'}
+          </Text>
+        ) : null}
 
         <Pressable style={styles.boton} onPress={iniciarSesion} disabled={cargando}>
           {cargando ? (
@@ -86,14 +105,15 @@ export default function LoginScreen() {
         <Pressable style={styles.enlace} onPress={() => router.push('/registro')}>
           <Text style={styles.enlaceTexto}>No tienes cuenta? Registrate</Text>
         </Pressable>
-      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   pantalla: { backgroundColor: '#eef2f6', flex: 1 },
-  contenido: { flex: 1, justifyContent: 'center', padding: 24 },
+  contenido: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   marca: {
     alignItems: 'center',
     alignSelf: 'center',
@@ -119,6 +139,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   mensaje: { color: '#b91c1c', lineHeight: 20, marginBottom: 13, textAlign: 'center' },
+  confirmacion: { color: '#166534', lineHeight: 20, marginBottom: 13, textAlign: 'center' },
   boton: { alignItems: 'center', backgroundColor: '#dc2626', borderRadius: 8, padding: 15 },
   botonTexto: { color: '#ffffff', fontSize: 16, fontWeight: '900' },
   enlace: { alignItems: 'center', marginTop: 18, padding: 10 },

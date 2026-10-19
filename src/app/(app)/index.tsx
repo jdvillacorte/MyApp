@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -29,15 +30,17 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const cerrarSesion = async () => {
-    const { error } = (await supabase?.auth.signOut()) ?? { error: null };
-
-    if (error) {
-      console.warn('No fue posible cerrar la sesion:', error.message);
+    try {
+      if (!supabase) throw new Error('Supabase no esta configurado.');
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    } catch {
+      Alert.alert('Cerrar sesion', 'No fue posible cerrar la sesion. Revisa tu conexion e intenta nuevamente.');
     }
   };
 
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
       <StatusBar style="dark" />
 
       <ScrollView

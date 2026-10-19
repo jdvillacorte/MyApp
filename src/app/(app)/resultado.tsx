@@ -14,14 +14,16 @@ export default function Resultado() {
     ['Correo', valor(params.correo)],
     ['Telefono', valor(params.telefono)],
     ['Ciudad', valor(params.ciudad)],
+    ['Vehiculo de interes', valor(params.vehiculoFavorito)],
     ['Tipo de compra', valor(params.tipoCompra)],
+    ['Codigo de registro', valor(params.id)],
   ];
 
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.contenido}>
         <Text style={styles.titulo}>Informacion registrada</Text>
-        <Text style={styles.subtitulo}>Datos recibidos desde el formulario.</Text>
+        <Text style={styles.subtitulo}>Registro confirmado en AutoSport.</Text>
         <View style={styles.card}>
           {datos.map(([etiqueta, dato]) => (
             <View key={etiqueta} style={styles.fila}>

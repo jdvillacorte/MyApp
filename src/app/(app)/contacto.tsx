@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ContactoScreen() {
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
       <StatusBar style="dark" />
 
       <View style={styles.container}>

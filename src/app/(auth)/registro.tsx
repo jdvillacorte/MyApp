@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { supabase } from '@/lib/supabase';
+import { supabaseRegistro } from '@/lib/supabase';
 
 export default function RegistroScreen() {
   const [nombre, setNombre] = useState('');
@@ -20,7 +20,8 @@ export default function RegistroScreen() {
   const [guardando, setGuardando] = useState(false);
 
   const crearCuenta = async () => {
-    if (!supabase) {
+    if (guardando) return;
+    if (!supabaseRegistro) {
       setMensaje('Falta configurar la clave publica de Supabase.');
       return;
     }
@@ -34,30 +35,42 @@ export default function RegistroScreen() {
       setMensaje('La contrasena debe tener minimo 6 caracteres.');
       return;
     }
+    if (nombre.trim().length < 2 || nombre.trim().length > 100) {
+      setMensaje('El nombre debe tener entre 2 y 100 caracteres.');
+      return;
+    }
 
     setGuardando(true);
     setMensaje('');
-    const { data, error } = await supabase.auth.signUp({
+    try {
+    const { data, error } = await supabaseRegistro.auth.signUp({
       email: correo.trim(),
       password: contrasena,
       options: { data: { nombre: nombre.trim() } },
     });
 
-    if (error) {
-      setGuardando(false);
-      setMensaje(error.message);
+    if (error || !data.user) {
+      setMensaje(error?.message ?? 'Supabase no confirmo la creacion de la cuenta.');
       return;
     }
 
     if (data.session) {
-      await supabase.auth.signOut();
+      const { error: errorSalida } = await supabaseRegistro.auth.signOut();
+      if (errorSalida) {
+        setMensaje('La cuenta fue creada, pero no fue posible cerrar la sesion.');
+        return;
+      }
     }
 
-    setGuardando(false);
     router.replace({
       pathname: '/login',
-      params: { registro: 'exitoso' },
+      params: { registro: data.session ? 'exitoso' : 'confirmar' },
     });
+    } catch {
+      setMensaje('No fue posible conectar con Supabase. No se confirmo la cuenta.');
+    } finally {
+      setGuardando(false);
+    }
   };
 
   return (

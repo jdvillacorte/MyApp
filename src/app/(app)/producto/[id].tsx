@@ -58,12 +58,22 @@ export default function ProductoScreen() {
   };
 
   const cerrarVentana = () => {
+    if (procesando) return;
     setModalVisible(false);
     setProcesando(false);
     setError('');
   };
 
   const confirmarCompra = async () => {
+    if (procesando) return;
+    if (!vehiculoGuardado) {
+      setError('El vehiculo seleccionado no esta disponible.');
+      return;
+    }
+    if (!supabase) {
+      setError('Supabase no esta configurado. No se guardo la compra.');
+      return;
+    }
     if (
       nombre.trim() === '' ||
       telefono.trim() === '' ||
@@ -72,13 +82,23 @@ export default function ProductoScreen() {
       setError('Completa tu nombre, telefono y ciudad para continuar.');
       return;
     }
+    if (nombre.trim().length < 2 || nombre.trim().length > 100
+      || ciudad.trim().length < 2 || ciudad.trim().length > 100
+      || telefono.trim().length < 7 || telefono.trim().length > 20) {
+      setError('Nombre y ciudad deben tener de 2 a 100 caracteres; telefono, de 7 a 20.');
+      return;
+    }
 
     setError('');
     setProcesando(true);
 
-    if (supabase) {
-      const { data: usuario } = await supabase.auth.getUser();
-      const { error: errorSupabase } = await supabase.from('pedidos').insert({
+    try {
+      const { data: usuario, error: errorUsuario } = await supabase.auth.getUser();
+      if (errorUsuario || !usuario.user) {
+        setError('No fue posible validar tu sesion. Inicia sesion nuevamente.');
+        return;
+      }
+      const { error: errorSupabase, status } = await supabase.from('pedidos').insert({
         vehiculo_id: id,
         marca,
         modelo,
@@ -87,22 +107,23 @@ export default function ProductoScreen() {
         telefono: telefono.trim(),
         ciudad: ciudad.trim(),
         financiado,
-        usuario_id: usuario.user?.id ?? null,
+        usuario_id: usuario.user.id,
       });
 
-      if (errorSupabase) {
-        setProcesando(false);
+      if (errorSupabase || status < 200 || status >= 300) {
         setError('No fue posible registrar la compra. Intenta nuevamente.');
         return;
       }
+      setPasoCompra('confirmado');
+    } catch {
+      setError('No fue posible conectar con Supabase. No se confirmo la compra.');
+    } finally {
+      setProcesando(false);
     }
-
-    setProcesando(false);
-    setPasoCompra('confirmado');
   };
 
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
       <StatusBar style="dark" />
 
       <ScrollView
@@ -162,6 +183,7 @@ export default function ProductoScreen() {
               <Pressable
                 style={styles.botonCerrar}
                 onPress={cerrarVentana}
+                disabled={procesando}
                 accessibilityLabel="Cerrar ventana"
               >
                 <View style={styles.iconoCerrar}>

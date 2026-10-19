@@ -14,7 +14,7 @@ import { vehiculos } from '@/constants/vehiculos';
 
 export default function MenuScreen() {
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
       <StatusBar style="dark" />
 
       <ScrollView

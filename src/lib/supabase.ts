@@ -25,6 +25,19 @@ export const supabase =
       })
     : null;
 
+// El registro no debe activar la sesion del cliente usado por la navegacion.
+export const supabaseRegistro =
+  supabaseUrl && supabasePublishableKey
+    ? createClient(supabaseUrl, supabasePublishableKey, {
+        auth: {
+          storageKey: 'autosport-registro',
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+      })
+    : null;
+
 if (supabase && Platform.OS !== 'web') {
   AppState.addEventListener('change', (state) => {
     if (state === 'active') {

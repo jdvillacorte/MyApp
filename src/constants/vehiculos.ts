@@ -9,7 +9,7 @@ export const vehiculos = [
       'Muscle car inspirado en el Mustang de Need for Speed, con carroceria wide-body, estilo agresivo y presencia de pelicula.',
     imagen:
       'https://cdn.shopify.com/s/files/1/0562/3001/9234/files/image1_f46b3451-0d3b-4c40-80b6-3e3d1b8c5825.jpg?v=1648473856',
-    imagenLocal: undefined,
+    imagenLocal: require('../../assets/mustang.jpg'),
   },
   {
     id: '2',
@@ -44,7 +44,7 @@ export const vehiculos = [
     descripcion:
       'Coupe deportivo japones con motor turbo, cabina compacta y equilibrio ideal para manejo urbano y carretera.',
     imagen: 'https://images.holley.com/04-2023-toyota-supra-manual.jpg',
-    imagenLocal: undefined,
+    imagenLocal: require('../../assets/toyota.jpg'),
   },
 ];
 

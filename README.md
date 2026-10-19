@@ -1,65 +1,37 @@
-# Welcome to your Expo app 👋
+# AutoSport
+
+Tienda academica de autos deportivos construida con Expo 57, Expo Router y Supabase.
+
+La revision de los cinco laboratorios, las equivalencias con Coffee App, las respuestas y las evidencias estan en [Entrega final](docs/ENTREGA_FINAL_AUTOSPORT.md).
 
 ## Configurar Supabase
 
-1. Copia `.env.example` como `.env.local`.
-2. En Supabase abre **Connect** y copia la `Publishable key` en `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-3. Aplica la migracion ubicada en `supabase/migrations` desde el SQL Editor de Supabase o con `npx supabase db push` despues de vincular el proyecto.
-4. Reinicia Expo con `npx expo start -c`.
+1. Cree `.env.local` a partir de `.env.example`.
+2. Configure `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` con el proyecto de AutoSport.
+3. Para una base nueva, aplique las migraciones de `supabase/migrations` en orden cronologico. La base existente ya contiene las tablas y la migracion de entrega.
+4. Reinicie Expo con `npx expo start -c`.
 
-La aplicacion usa la Data API de Supabase desde el celular. La contrasena de PostgreSQL y las claves secretas nunca deben agregarse a variables `EXPO_PUBLIC_*` ni confirmarse en Git.
+La app usa la Data API. No agregue la contrasena de PostgreSQL ni claves secretas a variables `EXPO_PUBLIC_*` o al repositorio.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Ejecutar y verificar
 
 ```bash
-npm run reset-project
+npm install
+npm run typecheck
+npx expo-doctor
+npm run verify:supabase
+npx expo start -c
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+El verificador es de lectura por defecto. `npm run verify:supabase -- --escritura` crea cuentas y registros identificados como pruebas; guarda el informe y las credenciales de prueba en la carpeta local excluida de Git `artifacts/entrega`.
 
-### Other setup steps
+## APK
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+eas whoami
+eas build -p android --profile preview
+```
 
-## Learn more
+El entorno `preview` de EAS debe incluir las dos variables publicas de Supabase. Para Android Studio, instalacion del APK, pruebas y capturas, siga el documento de entrega.
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Las rutas publicas son Login y Registro. Catalogo, formulario, resultado, clientes, galeria, contacto y compras requieren sesion. RLS protege los clientes y pedidos nuevos por UID y conserva visibles las demostraciones heredadas a usuarios autenticados.

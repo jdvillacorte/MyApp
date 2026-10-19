@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "miapp-6e",
+    "name": "AutoSport",
     "slug": "miapp-6e",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -29,9 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#dc2626"
         }
       ],
       "expo-image",

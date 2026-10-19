@@ -4,7 +4,7 @@ import { vehiculos } from '@/constants/vehiculos';
 
 export default function Imagenes() {
   return (
-    <SafeAreaView style={styles.pantalla}>
+    <SafeAreaView style={styles.pantalla} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.contenido}>
         <Text style={styles.titulo}>Galeria de autos</Text>
         <Text style={styles.subtitulo}>Mustang, Corvette, Ferrari y Toyota.</Text>
